@@ -53,6 +53,7 @@ class PathCrawler
 
     private function getNews($older_than = '')
     {
+        usleep(500);
         $this->speak('Getting news older than '.($older_than != '' ? date('y-m-d-h-i-s', $older_than) : date('y-m-d-h-i-s')));
 
         $key = 'home-'.date('y-m-d-h-i-s');
@@ -75,9 +76,19 @@ class PathCrawler
 
     private function storeData($key, $data)
     {
+        // Create directory and store content
         mkdir($this->dir_cache.$key.'/');
         @unlink($this->dir_cache.$key.'/content.json');
         file_put_contents($this->dir_cache.$key.'/content.json', $data);
+
+        // Store moment
+        $content = json_decode($data, true);
+        foreach ($content['momentSet'] as $moment_id => $moment) {
+            if (isset($moment['photo']['photo'])) {
+                $url = $moment['photo']['photo']['url'].'/'.$moment['photo']['photo']['original']['file'];
+                copy($url, $this->dir_cache.$key.'/'.$moment_id.'.jpg');
+            }
+        }
     }
 
 
