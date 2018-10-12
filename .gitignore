@@ -1,2 +1,3 @@
-vendor/*
 .idea/*
+src/classes/_config.php
+vendor/*
