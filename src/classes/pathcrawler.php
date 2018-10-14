@@ -68,6 +68,7 @@ class PathCrawler
         $this->storeData($key, $data);
 
         $content = json_decode($data, true);
+        $this->speak('Got '.count($content['momentSet']).' moments');
         if (isset($content['momentSet']) && !empty($content['momentSet'])) {
             $last_moment = array_values(array_slice($content['momentSet'], -1))[0];
             $this->getNews($last_moment['created']);
@@ -84,9 +85,18 @@ class PathCrawler
         // Store moment
         $content = json_decode($data, true);
         foreach ($content['momentSet'] as $moment_id => $moment) {
-            if (isset($moment['photo']['photo'])) {
+            if (isset($moment['photo'])) {
                 $url = $moment['photo']['photo']['url'].'/'.$moment['photo']['photo']['original']['file'];
-                copy($url, $this->dir_cache.$key.'/'.$moment_id.'.jpg');
+                copy($url, $this->dir_cache.$key.'/'.$moment_id.'-photo-'.$moment['photo']['photo']['original']['file']);
+            }
+            if (isset($moment['video'])) {
+                // Get preview image
+                $url = $moment['video']['photo']['url'].'/'.$moment['video']['photo']['original']['file'];
+                copy($url, $this->dir_cache.$key.'/'.$moment_id.'-video-preview-'.$moment['video']['photo']['original']['file']);
+
+                // Get video
+                $url = $moment['video']['video']['download_url'].'/'.$moment['video']['video']['original']['file'];
+                copy($url, $this->dir_cache.$key.'/'.$moment_id.'-video-'.$moment['video']['video']['original']['file']);
             }
         }
     }
